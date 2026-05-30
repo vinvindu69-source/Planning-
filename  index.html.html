@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Doubleside 69">
+<meta name="theme-color" content="#4f46e5">
+<title>Planning — Doubleside 69</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Helvetica Neue",Arial,sans-serif;background:#f0f2f8;min-height:100vh;min-height:-webkit-fill-available;}
+
+/* ===== ÉCRAN CHOIX NOM ===== */
+#screenName{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 20px;background:linear-gradient(160deg,#312e81,#4f46e5,#7c3aed);}
+.logo-area{text-align:center;margin-bottom:32px;}
+.app-icon{font-size:56px;margin-bottom:10px;}
+.app-name{color:white;font-size:28px;font-weight:900;letter-spacing:-0.5px;}
+.app-sub{color:rgba(255,255,255,0.6);font-size:13px;margin-top:4px;}
+.name-list{width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px;}
+.name-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:16px 20px;color:white;font-size:16px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;transition:all 0.15s;}
+.name-btn:active{background:rgba(255,255,255,0.3);transform:scale(0.97);}
+.name-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:white;flex-shrink:0;}
+.name-info{flex:1;}
+.name-info .nm{font-size:15px;font-weight:800;}
+.name-info .gr{font-size:11px;opacity:0.7;margin-top:1px;}
+.loading-msg{color:rgba(255,255,255,0.6);font-size:13px;text-align:center;margin-top:20px;}
+
+/* ===== ÉCRAN PIN ===== */
+#screenPin{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(160deg,#312e81,#4f46e5,#7c3aed);}
+.back-btn{position:absolute;top:60px;left:20px;background:rgba(255,255,255,0.15);border:none;color:white;font-size:13px;padding:8px 14px;border-radius:20px;cursor:pointer;}
+.pin-title{color:white;font-size:26px;font-weight:900;margin-bottom:4px;margin-top:8px;}
+.pin-sub{color:rgba(255,255,255,0.65);font-size:13px;margin-bottom:28px;}
+.pin-dots{background:rgba(255,255,255,0.15);border-radius:16px;padding:14px 30px;font-size:36px;font-weight:900;letter-spacing:16px;color:white;margin-bottom:24px;min-width:210px;text-align:center;border:1px solid rgba(255,255,255,0.2);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:280px;}
+.pb{background:rgba(255,255,255,0.18);color:white;border:1px solid rgba(255,255,255,0.1);border-radius:16px;font-size:26px;font-weight:700;padding:18px;cursor:pointer;transition:all 0.1s;}
+.pb:active{background:rgba(255,255,255,0.4);transform:scale(0.92);}
+.pb-del{background:rgba(255,80,80,0.25);}
+.pb-ok{background:rgba(80,220,120,0.25);}
+.pb-zero{grid-column:2;}
+.pin-err{color:#ff8a8a;font-size:13px;font-weight:700;margin-top:10px;min-height:20px;text-align:center;}
+.pin-forgot{margin-top:20px;background:none;border:none;color:rgba(255,255,255,0.45);font-size:12px;cursor:pointer;text-decoration:underline;}
+
+/* ===== CONTENU PLANNING ===== */
+#screenContent{display:none;background:#f0f2f8;min-height:100vh;}
+.top-bar{background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:50px 16px 16px;color:white;display:flex;align-items:center;gap:12px;}
+.top-back{background:rgba(255,255,255,0.2);border:none;color:white;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer;}
+.top-info{flex:1;}
+.top-info h1{font-size:18px;font-weight:900;}
+.top-info p{font-size:11px;opacity:0.75;margin-top:1px;}
+.content-scroll{padding:12px;}
+.card{background:white;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px rgba(99,102,241,0.1);}
+.card-title{font-size:11px;font-weight:800;color:#4f46e5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.jour-row{display:flex;align-items:center;padding:9px 10px;border-radius:10px;margin-bottom:4px;background:#f8fafc;gap:10px;}
+.jour-row.today{background:#eef2ff;border:2px solid #6366f1;}
+.jour-date{font-weight:700;font-size:13px;color:#111;min-width:95px;}
+.jour-badge{font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;color:white;}
+.bj{background:#0057ff;}.bn{background:#e8000d;}.bc{background:#e040fb;}.br{background:#94a3b8;}
+.plan-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{border-collapse:collapse;font-size:8px;}
+th,td{border:1px solid #ccc;text-align:center;vertical-align:middle;height:22px;overflow:hidden;}
+.mh{background:linear-gradient(135deg,#4f46e5,#7c3aed)!important;color:white;font-size:9px;font-weight:800;white-space:nowrap;padding:0 4px;}
+.sw{background:#eef2ff!important;font-weight:700;font-size:8px;color:#000;}
+.dn{background:#f8fafc!important;font-size:8px;font-weight:700;color:#000;}
+.nc{background:#e0e7ff!important;font-weight:900;font-size:9px;text-align:left;padding-left:4px;min-width:58px;border-right:2px solid #6366f1;}
+.su{background:#fff1f2!important;color:#be123c!important;}
+.fe{background:#fef9c3!important;color:#854d0e!important;}
+.lg{display:flex;gap:8px;justify-content:center;margin:8px 0;flex-wrap:wrap;}
+.ll{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#444;}
+.lb{width:14px;height:10px;border-radius:2px;border:1px solid #ddd;}
+.action-btn{display:block;width:100%;padding:14px;text-align:center;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;}
+.cal-btn{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;box-shadow:0 4px 14px rgba(99,102,241,0.3);}
+.dem-btn{background:linear-gradient(135deg,#ea580c,#dc2626);color:white;box-shadow:0 4px 14px rgba(234,88,12,0.3);}
+.logout-btn{background:none;border:2px solid #94a3b8;color:#64748b;}
+
+/* ===== FORMULAIRE DEMANDE ===== */
+#screenDemande{display:none;background:#f0f2f8;min-height:100vh;}
+select,input,textarea{width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13px;margin-bottom:10px;background:white;color:#111;font-family:inherit;-webkit-appearance:none;}
+textarea{min-height:90px;resize:none;}
+.echange-bloc{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;padding:12px;margin-bottom:10px;}
+.echange-titre{font-size:12px;font-weight:800;color:#ea580c;margin-bottom:10px;}
+.field-label{font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px;}
+.send-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ea580c,#dc2626);color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;}
+.send-note{font-size:11px;color:#888;text-align:center;margin-top:8px;}
+.ok-msg{display:none;text-align:center;font-size:13px;color:#16a34a;font-weight:700;margin-top:10px;padding:12px;background:#f0fdf4;border-radius:12px;}
+
+/* Install banner */
+#installBanner{display:none;position:fixed;bottom:20px;left:16px;right:16px;background:#4f46e5;color:white;border-radius:16px;padding:14px 16px;z-index:100;box-shadow:0 8px 30px rgba(79,70,229,0.4);}
+.install-text{font-size:13px;font-weight:700;margin-bottom:4px;}
+.install-sub{font-size:11px;opacity:0.8;}
+.install-close{position:absolute;top:10px;right:12px;background:none;border:none;color:white;font-size:18px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- ÉCRAN 1 : CHOIX DU NOM -->
+<div id="screenName">
+  <div class="logo-area">
+    <div class="app-icon">📅</div>
+    <div class="app-name">Doubleside 69</div>
+    <div class="app-sub">Planning du personnel</div>
+  </div>
+  <div class="name-list" id="nameList">
+    <div class="loading-msg">Chargement...</div>
+  </div>
+  <div class="loading-msg" id="dataStatus" style="margin-top:24px;"></div>
+</div>
+
+<!-- ÉCRAN 2 : PIN -->
+<div id="screenPin">
+  <button class="back-btn" onclick="goBack('name')">← Retour</button>
+  <div style="font-size:44px;margin-bottom:8px;">🔑</div>
+  <div class="pin-title" id="pinTitle">Jérome</div>
+  <div class="pin-sub">Entrez votre code PIN</div>
+  <div class="pin-dots" id="pinDisplay">_ _ _ _</div>
+  <div class="pin-pad">
+    <button class="pb" onclick="pressPin(1)">1</button>
+    <button class="pb" onclick="pressPin(2)">2</button>
+    <button class="pb" onclick="pressPin(3)">3</button>
+    <button class="pb" onclick="pressPin(4)">4</button>
+    <button class="pb" onclick="pressPin(5)">5</button>
+    <button class="pb" onclick="pressPin(6)">6</button>
+    <button class="pb" onclick="pressPin(7)">7</button>
+    <button class="pb" onclick="pressPin(8)">8</button>
+    <button class="pb" onclick="pressPin(9)">9</button>
+    <button class="pb pb-del" onclick="delPin()">⌫</button>
+    <button class="pb pb-zero" onclick="pressPin(0)">0</button>
+    <button class="pb pb-ok" onclick="checkPin()">✓</button>
+  </div>
+  <div class="pin-err" id="pinError"></div>
+  <button class="pin-forgot" onclick="codeOublie()">Code oublié ? → SMS automatique</button>
+</div>
+
+<!-- ÉCRAN 3 : PLANNING -->
+<div id="screenContent">
+  <div class="top-bar">
+    <button class="top-back" onclick="goBack('pin')">← Retour</button>
+    <div class="top-info">
+      <h1 id="contentTitle">Planning</h1>
+      <p id="contentSub">Doubleside 69</p>
+    </div>
+    <button class="top-back" onclick="logout()" style="background:rgba(220,38,38,0.3);">🔒</button>
+  </div>
+  <div class="content-scroll">
+    <div class="card">
+      <div class="card-title">📆 Cette semaine</div>
+      <div id="semaineContent"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Planning 3 mois</div>
+      <div class="plan-wrap"><table id="planTable"></table></div>
+      <div class="lg">
+        <div class="ll"><div class="lb" style="background:#0057ff"></div>Journée</div>
+        <div class="ll"><div class="lb" style="background:#e8000d"></div>Nuit</div>
+        <div class="ll"><div class="lb" style="background:#e040fb"></div>Congé</div>
+        <div class="ll"><div class="lb" style="background:#94a3b8"></div>Repos</div>
+      </div>
+    </div>
+    <button class="action-btn cal-btn" onclick="telechargerCalendrier()">📆 Ajouter à mon calendrier</button>
+    <button class="action-btn dem-btn" onclick="goTo('demande')">📝 Faire une demande</button>
+    <button class="action-btn logout-btn" onclick="logout()">🔒 Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ÉCRAN 4 : DEMANDE -->
+<div id="screenDemande">
+  <div class="top-bar">
+    <button class="top-back" onclick="goBack('content')">← Retour</button>
+    <div class="top-info">
+      <h1>📝 Demande</h1>
+      <p>Sujet à validation par la direction</p>
+    </div>
+  </div>
+  <div class="content-scroll">
+    <div class="card">
+      <div class="card-title">Type de demande</div>
+      <select id="dtype" onchange="toggleDemande()">
+        <option value="">-- Choisir --</option>
+        <option value="echange">🔄 Échange de jour</option>
+        <option value="conge">🏖️ Congé exceptionnel</option>
+        <option value="absence">🤒 Absence / Maladie</option>
+        <option value="horaire">⏰ Modification horaire</option>
+        <option value="autre">💬 Autre demande</option>
+      </select>
+
+      <div id="blocEchange" style="display:none;">
+        <div class="echange-bloc">
+          <div class="echange-titre">🔄 Échange de jour</div>
+          <span class="field-label">Mon jour :</span>
+          <input type="date" id="mj">
+          <span class="field-label">Avec quel collègue :</span>
+          <select id="col"><option value="">-- Choisir --</option></select>
+          <span class="field-label">Contre son jour (optionnel) :</span>
+          <input type="date" id="sj">
+        </div>
+        <button class="send-btn" onclick="sendEchange()">📲 Envoyer au responsable</button>
+        <div class="send-note">⚠️ Sujet à validation — votre collègue ne voit pas votre numéro</div>
+      </div>
+
+      <div id="blocStd" style="display:none;">
+        <span class="field-label">Date concernée :</span>
+        <input type="date" id="dd">
+        <span class="field-label">Votre message :</span>
+        <textarea id="dm" placeholder="Expliquez votre demande..."></textarea>
+        <button class="send-btn" onclick="sendDemande()">📲 Envoyer au responsable</button>
+        <div class="send-note">⚠️ Sujet à validation par la direction</div>
+      </div>
+
+      <div class="ok-msg" id="okMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Bannière installation -->
+<div id="installBanner">
+  <button class="install-close" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
+  <div class="install-text">📱 Ajouter à l'écran d'accueil</div>
+  <div class="install-sub">Appuyez sur <b>Partager</b> puis <b>"Sur l'écran d'accueil"</b> pour accéder facilement</div>
+</div>
+
+<script>
+// ============================================================
+// DONNÉES — injectées par l'app patron via data.js
+// ============================================================
+var PLANNING_DATA = null;
+var currentEmp = null;
+var pin = "";
+
+// Charge les données depuis data.js
+function loadPlanningData() {
+  if (typeof DOUBLESIDE_DATA !== "undefined") {
+    PLANNING_DATA = DOUBLESIDE_DATA;
+    buildNameList();
+  } else {
+    document.getElementById("dataStatus").textContent = "⚠️ Données non trouvées. Contactez la direction.";
+    document.getElementById("nameList").innerHTML = '<div style="color:rgba(255,255,255,0.5);font-size:13px;text-align:center;">En attente des données...</div>';
+  }
+}
+
+function buildNameList() {
+  var list = document.getElementById("nameList");
+  list.innerHTML = "";
+  var emps = PLANNING_DATA.employees.filter(function(e){ return !e.revoked; });
+  emps.forEach(function(emp) {
+    var btn = document.createElement("button");
+    btn.className = "name-btn";
+    var initiale = emp.name.charAt(0).toUpperCase();
+    btn.innerHTML = '<div class="name-avatar">' + initiale + '</div>'
+      + '<div class="name-info"><div class="nm">' + emp.name + '</div>'
+      + '<div class="gr">Groupe ' + emp.group + '</div></div>'
+      + '<div style="color:rgba(255,255,255,0.4);font-size:18px;">›</div>';
+    btn.onclick = function() { selectEmployee(emp); };
+    list.appendChild(btn);
+  });
+  document.getElementById("dataStatus").textContent = "Mis à jour le " + (PLANNING_DATA.updatedAt || "");
+}
+
+function selectEmployee(emp) {
+  currentEmp = emp;
+  document.getElementById("pinTitle").textContent = emp.name;
+  pin = "";
+  updatePinDisplay();
+  goTo("pin");
+  // Remplir la liste des collègues
+  var col = document.getElementById("col");
+  col.innerHTML = '<option value="">-- Choisir --</option>';
+  PLANNING_DATA.employees.filter(function(e){ return e.name !== emp.name && !e.revoked; }).forEach(function(e) {
+    var o = document.createElement("option"); o.value = e.name; o.textContent = e.name; col.appendChild(o);
+  });
+}
+
+// ============================================================
+// PIN
+// ============================================================
+function pressPin(n) {
+  if (pin.length >= 4) return;
+  pin += String(n);
+  updatePinDisplay();
+  if (pin.length === 4) setTimeout(checkPin, 300);
+}
+function delPin() { pin = pin.slice(0, -1); updatePinDisplay(); }
+function updatePinDisplay() {
+  var s = "";
+  for (var i = 0; i < 4; i++) s += i < pin.length ? "● " : "_ ";
+  document.getElementById("pinDisplay").textContent = s.trim();
+}
+function checkPin() {
+  if (!currentEmp) return;
+  if (pin === currentEmp.code) {
+    document.getElementById("contentTitle").textContent = "Planning " + currentEmp.name;
+    document.getElementById("contentSub").textContent = "Mis à jour le " + (PLANNING_DATA.updatedAt || "");
+    buildSemaine();
+    buildPlanning();
+    goTo("content");
+  } else {
+    var e = document.getElementById("pinError");
+    e.textContent = "❌ Code incorrect, réessayez.";
+    pin = ""; updatePinDisplay();
+    setTimeout(function(){ e.textContent = ""; }, 2000);
+  }
+}
+function logout() { pin = ""; currentEmp = null; goTo("name"); }
+function codeOublie() {
+  if (!currentEmp || !currentEmp.phone) {
+    document.getElementById("pinError").textContent = "❌ Contactez votre responsable.";
+    setTimeout(function(){ document.getElementById("pinError").textContent = ""; }, 3000);
+    return;
+  }
+  var msg = "Planning " + currentEmp.name + " - Code PIN : " + currentEmp.code;
+  window.location.href = "sms:" + currentEmp.phone + "?body=" + encodeURIComponent(msg);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTo(screen) {
+  ["screenName","screenPin","screenContent","screenDemande"].forEach(function(id) {
+    document.getElementById(id).style.display = id === "screen" + screen.charAt(0).toUpperCase() + screen.slice(1) ? "" : "none";
+  });
+  // Fix: match exact IDs
+  var map = {name:"screenName",pin:"screenPin",content:"screenContent",demande:"screenDemande"};
+  ["screenName","screenPin","screenContent","screenDemande"].forEach(function(id){ document.getElementById(id).style.display="none"; });
+  document.getElementById(map[screen]).style.display = screen === "pin" ? "flex" : "block";
+  if (screen === "name") document.getElementById("screenName").style.display = "flex";
+}
+function goBack(screen) {
+  if (screen === "name") { pin = ""; updatePinDisplay(); }
+  goTo(screen);
+}
+
+// ============================================================
+// PLANNING — SEMAINE
+// ============================================================
+function buildSemaine() {
+  if (!currentEmp || !PLANNING_DATA) return;
+  var today = new Date().toISOString().split("T")[0];
+  var div = document.getElementById("semaineContent");
+  div.innerHTML = "";
+  var now = new Date();
+  var dow = now.getDay();
+  var lundi = new Date(now); lundi.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(lundi); d.setDate(lundi.getDate() + i);
+    var y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+    var dStr = y + "-" + pad2(m+1) + "-" + pad2(day);
+    var state = getState(currentEmp, y, m, day);
+    var DAYS = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+    var MONTHS = ["jan","fév","mar","avr","mai","juin","juil","août","sep","oct","nov","déc"];
+    var row = document.createElement("div");
+    row.className = "jour-row" + (dStr === today ? " today" : "");
+    var icons = {jour:"☀️ Journée",nuit:"🌙 Nuit",conge:"🏖️ Congé",repos:"😴 Repos"};
+    var cls = {jour:"bj",nuit:"bn",conge:"bc",repos:"br"};
+    row.innerHTML = "<span class='jour-date'>" + DAYS[d.getDay()] + " " + day + " " + MONTHS[m] + "</span>"
+      + "<span class='jour-badge " + cls[state] + "'>" + icons[state] + "</span>";
+    div.appendChild(row);
+  }
+}
+
+// ============================================================
+// PLANNING — TABLEAU 3 MOIS
+// ============================================================
+function buildPlanning() {
+  if (!currentEmp || !PLANNING_DATA) return;
+  var MONTHS_FR = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  var DAYS_S = ["D","L","M","M","J","V","S"];
+  var now = new Date();
+  var startY = now.getFullYear() < 2026 ? 2026 : now.getFullYear();
+  var startM = now.getMonth();
+  var tbl = document.getElementById("planTable");
+  tbl.innerHTML = "";
+  for (var mi = 0; mi < 3; mi++) {
+    var m = (startM + mi) % 12;
+    var y = startY + Math.floor((startM + mi) / 12);
+    var dim = new Date(y, m+1, 0).getDate();
+    var days = [];
+    for (var d = 1; d <= dim; d++) days.push({d:d, dow:new Date(y,m,d).getDay()});
+    // Mois header
+    var trM = tbl.insertRow(); trM.insertCell().className="nc mh";
+    var thM = document.createElement("th"); thM.textContent=MONTHS_FR[m]+" "+y; thM.colSpan=dim; thM.className="mh"; trM.appendChild(thM);
+    // Jours lettres
+    var trDL = tbl.insertRow(); var ncDL = trDL.insertCell(); ncDL.className="nc dn";
+    days.forEach(function(day){ var th=document.createElement("th"); th.textContent=DAYS_S[day.dow]; th.className="dn"+(day.dow===0?" su":""); trDL.appendChild(th); });
+    // Numéros
+    var trDN = tbl.insertRow(); var ncDN = trDN.insertCell(); ncDN.className="nc dn";
+    days.forEach(function(day){
+      var th=document.createElement("th"); th.textContent=day.d;
+      th.className="dn"+(day.dow===0?" su":"")+(isFerie(y,m,day.d)?" fe":"");
+      trDN.appendChild(th);
+    });
+    // Ligne employé
+    var trE = tbl.insertRow();
+    var ncE = trE.insertCell(); ncE.className="nc"; ncE.textContent=currentEmp.name;
+    days.forEach(function(day){
+      var state = getState(currentEmp, y, m, day.d);
+      var td = trE.insertCell();
+      var bg = state==="jour"?"#0057ff":state==="nuit"?"#e8000d":state==="conge"?"#e040fb":"#fff";
+      td.style.cssText="background:"+bg+";border:1px solid #ccc;width:16px;";
+    });
+    // Séparateur
+    var trSep = tbl.insertRow(); var tdSep = trSep.insertCell(); tdSep.colSpan=dim+1; tdSep.style.cssText="height:4px;background:#f0f0f0;border:none;";
+  }
+}
+
+// ============================================================
+// CALCUL ÉTAT
+// ============================================================
+var CYCLE1 = ["J","J","J","N","N","N","R","R","R"];
+var CYCLE2 = ["J","J","N","N","R","R"];
+var REF = new Date(2000,0,1).getTime();
+
+function dayIndex(y,m,d){ return Math.round((new Date(y,m,d).getTime()-REF)/86400000); }
+function pad2(n){ return String(n).padStart(2,"0"); }
+
+function getCycleRaw(emp,y,m,d){
+  var cycle = emp.group===1 ? CYCLE1 : CYCLE2;
+  var di = dayIndex(y,m,d);
+  var pos = ((di+emp.offset)%cycle.length+cycle.length)%cycle.length;
+  return cycle[pos];
+}
+
+function getState(emp,y,m,d){
+  var key = y+"-"+pad2(m+1)+"-"+pad2(d);
+  // Override manuel
+  var ov = PLANNING_DATA.overrides;
+  if (ov && ov[emp.name] && ov[emp.name][key] !== undefined) return ov[emp.name][key];
+  // Fermeture collective
+  var cl = PLANNING_DATA.closures || [];
+  for (var i=0;i<cl.length;i++) if (key>=cl[i].start && key<=cl[i].end) return "conge";
+  // Cycle
+  var raw = getCycleRaw(emp,y,m,d);
+  var dow = new Date(y,m,d).getDay();
+  if (raw==="N" && dow===1) return "repos";
+  if (raw==="J") return "jour";
+  if (raw==="N") return "nuit";
+  return "repos";
+}
+
+function isFerie(y,m,d){
+  var data = PLANNING_DATA.feries || {};
+  var key = y+"-"+pad2(m+1)+"-"+pad2(d);
+  return !!data[key];
+}
+
+// ============================================================
+// CALENDRIER ICS
+// ============================================================
+function telechargerCalendrier(){
+  if (!currentEmp || !PLANNING_DATA) return;
+  var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Doubleside69//FR","X-WR-CALNAME:Planning "+currentEmp.name];
+  var now = new Date();
+  var sy = now.getFullYear() < 2026 ? 2026 : now.getFullYear();
+  var sm = now.getMonth();
+  var stamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  for (var mi=0;mi<3;mi++){
+    var m=(sm+mi)%12, y=sy+Math.floor((sm+mi)/12);
+    var dim=new Date(y,m+1,0).getDate();
+    for (var d=1;d<=dim;d++){
+      var state=getState(currentEmp,y,m,d);
+      if (state==="repos") continue;
+      var dow=new Date(y,m,d).getDay();
+      var tom=new Date(y,m,d+1);
+      var isVF=isFerie(tom.getFullYear(),tom.getMonth(),tom.getDate());
+      var isWE=(dow===5||dow===6);
+      var uid="ds69-"+currentEmp.name+"-"+y+pad2(m+1)+pad2(d);
+      var ds=y+""+pad2(m+1)+""+pad2(d);
+      if (state==="jour"){
+        var h0=currentEmp.group===1?"1130":"1300";
+        var h1=currentEmp.group===1?"1945":"2100";
+        ics.push("BEGIN:VEVENT","UID:"+uid,"DTSTAMP:"+stamp,
+          "DTSTART;TZID=Europe/Paris:"+ds+"T"+h0+"00",
+          "DTEND;TZID=Europe/Paris:"+ds+"T"+h1+"00",
+          "SUMMARY:Journee","END:VEVENT");
+      } else if (state==="nuit"){
+        var h0n=currentEmp.group===1?"1945":"2100";
+        var h1n=(isWE||isVF)?"0600":"0200";
+        var tom2=new Date(y,m,d+1);
+        var ds2=tom2.getFullYear()+""+pad2(tom2.getMonth()+1)+""+pad2(tom2.getDate());
+        ics.push("BEGIN:VEVENT","UID:"+uid,"DTSTAMP:"+stamp,
+          "DTSTART;TZID=Europe/Paris:"+ds+"T"+h0n+"00",
+          "DTEND;TZID=Europe/Paris:"+ds2+"T"+h1n+"00",
+          "SUMMARY:Nuit","END:VEVENT");
+      } else if (state==="conge"){
+        var tom3=new Date(y,m,d+1);
+        var ds3=tom3.getFullYear()+""+pad2(tom3.getMonth()+1)+""+pad2(tom3.getDate());
+        ics.push("BEGIN:VEVENT","UID:"+uid,"DTSTAMP:"+stamp,
+          "DTSTART;VALUE=DATE:"+ds,"DTEND;VALUE=DATE:"+ds3,"SUMMARY:Conge","END:VEVENT");
+      }
+    }
+  }
+  ics.push("END:VCALENDAR");
+  var blob=new Blob([ics.join("\r\n")],{type:"text/calendar;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download="Planning_"+currentEmp.name+".ics"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// DEMANDES
+// ============================================================
+function toggleDemande(){
+  var t=document.getElementById("dtype").value;
+  document.getElementById("blocEchange").style.display=t==="echange"?"block":"none";
+  document.getElementById("blocStd").style.display=(t&&t!=="echange")?"block":"none";
+}
+
+function sendEchange(){
+  var mj=document.getElementById("mj").value;
+  var col=document.getElementById("col").value;
+  if (!mj||!col){alert("Remplissez les champs");return;}
+  if (!PLANNING_DATA.patronPhone){alert("Numéro responsable non configuré");return;}
+  var msg="DEMANDE ECHANGE\nDe: "+currentEmp.name+"\nAvec: "+col+"\nMon jour: "+new Date(mj).toLocaleDateString("fr-FR")+"\nSujet a validation par la direction";
+  window.location.href="sms:"+PLANNING_DATA.patronPhone+"?body="+encodeURIComponent(msg);
+  showOk("Demande envoyée — en attente de validation ✅");
+}
+
+function sendDemande(){
+  var t=document.getElementById("dtype").value;
+  var d=document.getElementById("dd").value;
+  var m=document.getElementById("dm").value.trim();
+  if (!t||!d||!m){alert("Remplissez tous les champs");return;}
+  if (!PLANNING_DATA.patronPhone){alert("Numéro responsable non configuré");return;}
+  var msg="DEMANDE\n"+currentEmp.name+"\n"+t+"\n"+new Date(d).toLocaleDateString("fr-FR")+"\n"+m+"\nSujet a validation par la direction";
+  window.location.href="sms:"+PLANNING_DATA.patronPhone+"?body="+encodeURIComponent(msg);
+  showOk("Demande envoyée — en attente de validation ✅");
+}
+
+function showOk(msg){
+  var d=document.getElementById("okMsg"); d.textContent=msg; d.style.display="block";
+  setTimeout(function(){d.style.display="none";},4000);
+}
+
+// ============================================================
+// BANNIÈRE INSTALLATION iOS
+// ============================================================
+function checkInstall(){
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone=window.navigator.standalone;
+  var shown=sessionStorage.getItem("installShown");
+  if (isIOS && !isStandalone && !shown){
+    document.getElementById("installBanner").style.display="block";
+    sessionStorage.setItem("installShown","1");
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadPlanningData();
+checkInstall();
+</script>
+
+<!-- Les données sont dans data.js — généré par l'app patron -->
+<script src="data.js" onerror="console.log('data.js non trouvé')"></script>
+<script>
+// Relancer après chargement de data.js
+if (typeof DOUBLESIDE_DATA !== "undefined" && PLANNING_DATA === null) {
+  loadPlanningData();
+}
+</script>
+
+</body>
+</html>
